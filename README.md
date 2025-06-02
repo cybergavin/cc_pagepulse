@@ -150,4 +150,4 @@ python cc_pagepulse_api.py
 
 
 ## Accessing the API Documentation
-Once the app is running, you can access the FastAPI interactive docs at http://<host>:8000/docs
+Once the app is running, you can access the FastAPI interactive docs at `http://<host>:8000/docs`

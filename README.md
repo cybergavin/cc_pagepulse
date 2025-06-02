@@ -7,7 +7,7 @@ Built for internal documentation auditing, this tool empowers technical writers,
 
 ## 📦 Features
 
-* ✅ **Secure distroless container image** using [Chainguard's Wolfi base](https://github.com/chainguard-dev).
+* ✅ **Secure distroless container image** using [Chainguard's python images](https://images.chainguard.dev/directory/image/python/overview).
 * 🧠 **LLM-powered evaluation** using customizable OpenAI-compatible LLM providers/models.
 * 🔒 **Token-based access** to Confluence and LLM endpoints via `.env`.
 * 📈 **Customizable quality criteria** for precise, actionable feedback.
@@ -18,7 +18,7 @@ Built for internal documentation auditing, this tool empowers technical writers,
 ## 📁 Repository Structure
 
 ```
-├── Dockerfile               # Two-stage build: secure, minimal image using Chainguard Python
+├── Dockerfile              # Two-stage build: secure, minimal image using Chainguard Python
 ├── LICENSE
 ├── cc_pagepulse.py         # Core logic: Confluence scraping + LLM interaction
 ├── cc_pagepulse_api.py     # FastAPI server exposing the main API endpoints
@@ -110,10 +110,10 @@ Once running, open your browser to:
 Submit a Confluence page URL to receive an AI-generated quality rating and actionable feedback.
 
 
-## 🔐 Security Notes
+## 🔐 Security
 
-* Container built from **Wolfi (distroless)** base for minimal attack surface.
-* No OS package manager or shell in production image.
+* Container built from Chainguard's images based on their **Wolfi (undistro)** base for minimal attack surface.
+* No OS package manager or shell in final image.
 * Sensitive tokens are injected at runtime via `.env`.
 
 

@@ -39,3 +39,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/cc_pagepulse:latest
+          secrets: |
+            GIT_AUTH_TOKEN=${{ steps.create-token.outputs.token }}

@@ -15,6 +15,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ########### FINAL STAGE ###########
 FROM cgr.dev/chainguard/python:latest
 
+LABEL org.opencontainers.image.source=https://github.com/cybergavin/cc_pagepulse
+LABEL org.opencontainers.image.description="Confluence Cloud PagePulse - A confluence cloud page rating application"
+LABEL org.opencontainers.image.licenses=MIT
+
 WORKDIR /app
 
 # Ensure logs are flushed immediately

@@ -4,40 +4,49 @@ on:
   push:
     branches:
       - main  # Trigger the action on pushes to the main branch
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      # Step 2: Create GitHub App Token
-      - name: Create GitHub App Token
-        id: create-token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # V2.0.3
-        with:
-          app-id: ${{ vars.GH_APP_ID }}
-          private-key: ${{ secrets.PW_KEY }}
-          repositories: "cc_pagepulse"
-
-      # Step 3: Log in to GitHub Container Registry (GHCR) using the GitHub App token
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ steps.create-token.outputs.token }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 4: Build and Push Docker Image
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Build and Push Docker Image
+        id: push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
-          file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cc_pagepulse:latest
-          secrets: |
-            GIT_AUTH_TOKEN=${{ steps.create-token.outputs.token }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

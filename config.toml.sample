@@ -1,0 +1,57 @@
+# This TOML config file will be passed to the cc-pagepulse container at launch time
+
+# Configure hosting details
+[webapp]
+title = "Confluence PagePulse"
+host  = "0.0.0.0"
+port  = 8000
+
+# Configure Confluence details
+[confluence]
+wiki_url = "https://abc.atlassian.net/wiki"
+username = "svc@atlassian.abc.net"
+
+# Configure your OpenAI-compatible endpoint and allowed model
+[ai]
+endpoint = "https://aigateway.abc.net"
+model = "gpt-4o"
+max_tokens = 2000
+temperature = 0.1
+top_p = 0.1
+
+[prompts]
+system_page_rating = "You are a document rating assistant. You have been trained to evaluate content in HTML format based on specific criteria."
+user_page_rating = """
+Evaluate the following Confluence wiki HTML document based strictly on its **quality, specificity, and usefulness within an internal organizational setting**. The evaluation must adhere to the highest professional documentation standards. Do not be lenient. Provide direct, critical, and actionable feedback.
+
+### **Key Evaluation Criteria (strict focus on high standards):**
+
+1. **Clarity (1-10)** - Is the content structured logically and easy to understand? Is there any ambiguity? Does the content make use of concise, straightforward language without overly complex explanations? Is it too verbose or missing necessary details?
+   
+2. **Accuracy (1-10)** - Is the information factually correct, precise, and without any errors or misleading statements? Has the document been thoroughly checked for technical correctness? Is it aligned with the internal organization's standards, procedures, and technologies? Do not tolerate inaccuracies, even minor ones.
+   
+3. **Relevance & Uniqueness (1-10)** - For HOW-TO documents: Does the content provide valuable, actionable, and **organization-specific knowledge** that can’t be easily found in publicly available documentation? Avoid overly generic content. For other document types, focus on whether the content is truly useful and tailored to your internal audience's needs.
+   
+4. **Actionability (1-10)** - Can the reader apply the information immediately and effectively within the organization? Or does it contain too much theory and not enough practical steps? Are the steps clear, direct, and specific to the organization, or is it just a conceptual overview?
+   
+5. **Consistency (1-10)** - Does the page adhere to internal documentation standards, including style, formatting, and terminology? Are there any inconsistencies in the way information is presented? Does it follow established guidelines, or does it veer off track in terms of structure and tone?
+
+### **Content for Evaluation:**
+{{wiki_content}}
+
+### **Output Instructions:**
+- **Assign an overall quality rating (1-10)**, ensuring the rating reflects a high standard of professional documentation.
+- Provide **individual ratings (1-10)** for each of the five evaluation criteria with concise explanations for the ratings.
+- After the ratings, provide a concise paragraph containing actionable recommendations. Use **specific, direct language** and avoid vague statements.
+- Be honest, even if the document is lacking.
+- **Format** the title at the top of the page as: 'Page Rating: X/10 - Content: Y', where X is the overall rating and Y is one of the following types: 'HOW-TO', 'Technical Standard', 'Policy', 'System Architecture', 'System Build', 'Product/Service', or 'Other - Not sure'.
+
+**Strict Evaluation:**
+Ensure your evaluation meets high standards, aiming for precise, high-quality documentation. Avoid sugar-coated feedback that could mislead the content authors.
+
+"""
+
+# Configure cache details - A SQLite database will be created to serve as a cache to optimize costs and performance.
+[cache]
+database = "cc_pagepulse_cache.db"
+ttl_seconds = 2592000

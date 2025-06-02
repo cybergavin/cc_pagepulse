@@ -1,10 +1,9 @@
 # 🚀 Confluence Cloud PagePulse
 
-**Confluence Cloud PagePulse** is a secure, containerized web application that evaluates the quality of Confluence pages using a configurable AI model (e.g., GPT-4o). It scrapes wiki content from Confluence Cloud and rates it across multiple documentation quality metrics like clarity, accuracy, relevance, actionability, and consistency, returning actionable feedback.
+**Confluence Cloud PagePulse**  is a secure, containerized web application designed to assess the quality of Confluence pages using an **OpenAI API-compatible AI model provider** (e.g., OpenAI, LiteLLM, OpenRouter). It scrapes wiki content from Confluence Cloud, evaluates it against multiple documentation quality metrics — such as clarity, accuracy, relevance, actionability, and consistency — and provides actionable feedback.
 
-Built for internal documentation auditing, this tool empowers technical writers, product owners, and engineering teams to maintain high standards across your organization's wiki content.
+Built for internal documentation auditing, this tool empowers technical writers, product owners, and engineering teams to maintain high standards across their organization's wiki content.
 
----
 
 ## 📦 Features
 
@@ -12,10 +11,9 @@ Built for internal documentation auditing, this tool empowers technical writers,
 * 🧠 **LLM-powered evaluation** using customizable OpenAI-compatible LLM providers/models.
 * 🔒 **Token-based access** to Confluence and LLM endpoints via `.env`.
 * 📈 **Customizable quality criteria** for precise, actionable feedback.
-* 🧰 **Cache layer (SQLite)** to minimize repeated LLM requests and optimize API usage.
+* 🧰 **Cache layer (SQLite)** to optimize API cost and performance.
 * ⚡ **FastAPI** backend for scalable web integration.
 
----
 
 ## 📁 Repository Structure
 
@@ -32,7 +30,6 @@ Built for internal documentation auditing, this tool empowers technical writers,
     └── index.html          # Basic web UI for submitting page URLs
 ```
 
----
 
 ## ⚙️ Configuration
 
@@ -46,6 +43,7 @@ CONFLUENCE_API_TOKEN="your-confluence-api-token"
 ```
 
 **NOTE:** Any OpenAI-compatible API endpoint for LLMs will work.
+
 
 ### 2. `config.toml`
 
@@ -68,39 +66,41 @@ max_tokens = 2000
 temperature = 0.1
 top_p = 0.1
 
+[prompts]
+system_page_rating = "You are a document rating assistant. You have been trained to evaluate content in HTML format based on specific criteria."
+user_page_rating = "..."  # Full prompt example is provided in config.toml.sample
+
 [cache]
 database = "cc_pagepulse_cache.db"
 ttl_seconds = 2592000
 ```
 
-> 🔍 Prompts for document evaluation are defined in the `[prompts]` section of this file and are fully customizable.
-
----
-
 ## 🐳 Running via Docker
 
-### Pre-requisites
+### Prerequisites
 
 * Ensure you have:
 
   * A valid `.env` file with API credentials.
   * A valid `config.toml` file.
-  * A local directory called `cache` for cache persistence with full permissions for the container.
+  * A local directory called `cache` for cache persistence.
+  * Permissions as follows:
+  ```
+  chmod 644 .env config.toml
+  chmod 777 cache
+  ```
 
 ### Run Command
 
 ```bash
-docker run --rm -it \
+docker run --rm -d \
   -v $(pwd)/config.toml:/app/config.toml \
   -v $(pwd)/.env:/app/.env \
   -v $(pwd)/cache:/app/cache \
   -p 8000:8000 \
-  cc_pagepulse
+  ghcr.io/cybergavin/cc_pagepulse:latest
 ```
 
-> 🛡️ The image is based on Chainguard’s minimal, secure Python base image and is compiled with `uv` for fast, reproducible dependency resolution.
-
----
 
 ## 🌐 Web Interface
 
@@ -109,7 +109,6 @@ Once running, open your browser to:
 
 Submit a Confluence page URL to receive an AI-generated quality rating and actionable feedback.
 
----
 
 ## 🔐 Security Notes
 
@@ -117,14 +116,12 @@ Submit a Confluence page URL to receive an AI-generated quality rating and actio
 * No OS package manager or shell in production image.
 * Sensitive tokens are injected at runtime via `.env`.
 
----
 
 ## 🔄 Caching
 
 * Scraped content and AI responses are cached in a local SQLite DB (`cache/cc_pagepulse_cache.db`) with a configurable TTL.
 * Helps reduce cost and API usage for repeat evaluations.
 
----
 
 ## 🧰 Development
 
@@ -133,25 +130,24 @@ Submit a Confluence page URL to receive an AI-generated quality rating and actio
 To run locally (Python 3.11+):
 
 ```bash
-uv venv
-source .venv/bin/activate
-uv pip install -e .
-```
+# Install dependencies
+uv sync
 
-Then start the server:
-
-```bash
+# Launch the application
 python cc_pagepulse_api.py
 ```
 
 ## 🙋 FAQ
 
-**Q:** Does this work with Confluence Server?
+**Q:** Does this work with Confluence Server? <br/>
 **A:** No, currently only Confluence Cloud is supported (via its REST API).
-
-**Q:** Can I use a different LLM provider?
+<br/><br/>
+**Q:** Can I use a different LLM provider?<br/>
 **A:** Yes, as long as the provider supports OpenAI-compatible APIs.
-
-**Q:** Can I change the evaluation criteria?
+<br/><br/>
+**Q:** Can I change the evaluation criteria?<br/>
 **A:** Absolutely. Modify the `user_page_rating` prompt in `config.toml`.
 
+
+## Accessing the API Documentation
+Once the app is running, you can access the FastAPI interactive docs at http://<host>:8000/docs

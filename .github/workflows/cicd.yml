@@ -19,9 +19,9 @@ jobs:
         id: create-token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # V2.0.3
         with:
-          app-id: ${{ vars.GH_APP_ID }}  # GitHub App ID stored in secrets
-          private-key: ${{ secrets.PW_KEY }}  # GitHub App private key stored in secrets
-          repositories: ${{ github.repository }}  # The repository for which you want to generate the token
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.PW_KEY }}
+          repositories: "cc_pagepulse"
 
       # Step 3: Log in to GitHub Container Registry (GHCR) using the GitHub App token
       - name: Log in to GitHub Container Registry (GHCR)
